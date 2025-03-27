@@ -4,13 +4,12 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.tugas5.ui.theme.Tugas5Theme
@@ -23,7 +22,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             Tugas5Theme {
-                CalculatorScreen()
+                TemperatureConverterScreen()
             }
         }
     }
@@ -31,9 +30,8 @@ class MainActivity : ComponentActivity() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CalculatorScreen() {
-    var num1 by remember { mutableStateOf("") }
-    var num2 by remember { mutableStateOf("") }
+fun TemperatureConverterScreen() {
+    var celcius by remember { mutableStateOf("")}
     var result by remember { mutableStateOf<String?>(null) }
 
     Scaffold { paddingValues ->
@@ -45,25 +43,17 @@ fun CalculatorScreen() {
         ) {
             Column {
                 Text(
-                    text = "Kalkulator",
+                    text = "Konversi Suhu",
                     fontFamily = interBold,
                     fontSize = 28.sp,
                     modifier = Modifier.padding(bottom = 8.dp)
                 )
 
                 TextField(
-                    value = num1,
-                    onValueChange = { num1 = it },
-                    label = { Text("Angka 1", fontFamily = interSemiBold) },
-                    modifier = Modifier.fillMaxWidth(),
-                )
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                TextField(
-                    value = num2,
-                    onValueChange = { num2 = it },
-                    label = { Text("Angka 2", fontFamily = interSemiBold) },
+                    value = celcius,
+                    onValueChange = { celcius = it },
+                    label = { Text("Masukkan suhu dalam Celcius", fontFamily = interSemiBold,)  },
+                    textStyle = TextStyle(fontFamily = interSemiBold),
                     modifier = Modifier.fillMaxWidth(),
                 )
 
@@ -74,20 +64,14 @@ fun CalculatorScreen() {
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Button(onClick = {
-                        result = performOperation(num1, num2, "+") }) {
-                        Text("Add", fontFamily = interSemiBold)
+                        result = convertTemperature(celcius, "F")
+                    }) {
+                        Text("Fahrenheit", fontFamily = interSemiBold,)
                     }
                     Button(onClick = {
-                        result = performOperation(num1, num2, "-") }) {
-                        Text("Sub", fontFamily = interSemiBold)
-                    }
-                    Button(onClick = {
-                        result = performOperation(num1, num2, "*") }) {
-                        Text("Mul", fontFamily = interSemiBold)
-                    }
-                    Button(onClick = {
-                        result = performOperation(num1, num2, "/") }) {
-                        Text("Div", fontFamily = interSemiBold)
+                        result = convertTemperature(celcius, "K")
+                    }) {
+                        Text("Kelvin", fontFamily = interSemiBold,)
                     }
                 }
 
@@ -95,15 +79,15 @@ fun CalculatorScreen() {
 
                 Text(
                     text = "Hasil:",
-                    fontFamily = interBold,
                     fontSize = 20.sp,
+                    fontFamily = interBold,
                     modifier = Modifier.padding(bottom = 4.dp)
                 )
                 result?.let {
                     Text(
                         text = it,
+                        fontSize = 18.sp,
                         fontFamily = interSemiBold,
-                        fontSize = 18.sp
                     )
                 }
             }
@@ -111,18 +95,15 @@ fun CalculatorScreen() {
     }
 }
 
-fun performOperation(num1: String, num2: String, operator: String): String {
+fun convertTemperature(celcius: String, toUnit: String): String {
     return try {
-        val n1 = num1.toInt()
-        val n2 = num2.toInt()
-        val res = when (operator) {
-            "+" -> n1 + n2
-            "-" -> n1 - n2
-            "*" -> n1 * n2
-            "/" -> if (n2 != 0) n1 / n2 else "Error: Pembagian dengan nol!"
-            else -> "Operator tidak valid!"
+        val c = celcius.toDouble()
+        val converted = when (toUnit) {
+            "F" -> c * 9/5 + 32
+            "K" -> c + 273.15
+            else -> "Unit tidak valid"
         }
-        res.toString()
+        "%.2f $toUnit".format(converted)
     } catch (e: NumberFormatException) {
         "Error: Masukkan angka yang valid!"
     }
